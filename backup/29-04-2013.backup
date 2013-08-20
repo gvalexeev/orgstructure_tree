@@ -1,0 +1,207 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.1.1
+-- Dumped by pg_dump version 9.1.1
+-- Started on 2013-08-18 19:53:37
+
+SET statement_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TOC entry 165 (class 3079 OID 11638)
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- TOC entry 1870 (class 0 OID 0)
+-- Dependencies: 165
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+--
+-- TOC entry 162 (class 1259 OID 100186)
+-- Dependencies: 5
+-- Name: department_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE department_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.department_id_seq OWNER TO admin;
+
+--
+-- TOC entry 1871 (class 0 OID 0)
+-- Dependencies: 162
+-- Name: department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('department_id_seq', 1, false);
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 161 (class 1259 OID 100173)
+-- Dependencies: 1854 5
+-- Name: department; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
+--
+
+CREATE TABLE department (
+    id integer DEFAULT nextval('department_id_seq'::regclass) NOT NULL,
+    name character varying(1024),
+    parent_id integer
+);
+
+
+ALTER TABLE public.department OWNER TO admin;
+
+--
+-- TOC entry 163 (class 1259 OID 100189)
+-- Dependencies: 5
+-- Name: employee_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE employee_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.employee_id_seq OWNER TO admin;
+
+--
+-- TOC entry 1872 (class 0 OID 0)
+-- Dependencies: 163
+-- Name: employee_id_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('employee_id_seq', 1, false);
+
+
+--
+-- TOC entry 164 (class 1259 OID 100191)
+-- Dependencies: 1855 5
+-- Name: employee; Type: TABLE; Schema: public; Owner: admin; Tablespace: 
+--
+
+CREATE TABLE employee (
+    id integer DEFAULT nextval('employee_id_seq'::regclass) NOT NULL,
+    first_name character varying(1024) NOT NULL,
+    middle_name character varying(1024) NOT NULL,
+    last_name character varying(1024) NOT NULL,
+    fio character varying(1024),
+    dep_id integer NOT NULL
+);
+
+
+ALTER TABLE public.employee OWNER TO admin;
+
+--
+-- TOC entry 1863 (class 0 OID 100173)
+-- Dependencies: 161
+-- Data for Name: department; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+COPY department (id, name, parent_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1864 (class 0 OID 100191)
+-- Dependencies: 164
+-- Data for Name: employee; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+COPY employee (id, first_name, middle_name, last_name, fio, dep_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1857 (class 2606 OID 100201)
+-- Dependencies: 161 161
+-- Name: department_id; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
+--
+
+ALTER TABLE ONLY department
+    ADD CONSTRAINT department_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1859 (class 2606 OID 100199)
+-- Dependencies: 164 164
+-- Name: employee_id; Type: CONSTRAINT; Schema: public; Owner: admin; Tablespace: 
+--
+
+ALTER TABLE ONLY employee
+    ADD CONSTRAINT employee_id PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1860 (class 1259 OID 100212)
+-- Dependencies: 164
+-- Name: fki_dep_id; Type: INDEX; Schema: public; Owner: admin; Tablespace: 
+--
+
+CREATE INDEX fki_dep_id ON employee USING btree (dep_id);
+
+
+--
+-- TOC entry 1862 (class 2606 OID 100207)
+-- Dependencies: 164 161 1856
+-- Name: dep_id; Type: FK CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY employee
+    ADD CONSTRAINT dep_id FOREIGN KEY (dep_id) REFERENCES department(id);
+
+
+--
+-- TOC entry 1861 (class 2606 OID 100202)
+-- Dependencies: 161 161 1856
+-- Name: parent_id; Type: FK CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY department
+    ADD CONSTRAINT parent_id FOREIGN KEY (parent_id) REFERENCES department(id);
+
+
+--
+-- TOC entry 1869 (class 0 OID 0)
+-- Dependencies: 5
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+-- Completed on 2013-08-18 19:53:37
+
+--
+-- PostgreSQL database dump complete
+--
+
