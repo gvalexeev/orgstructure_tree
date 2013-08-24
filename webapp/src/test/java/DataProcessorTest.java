@@ -10,7 +10,7 @@
 */
 
 import org.junit.Test;
-import processor.DataProcessor;
+import processor.DataToJSONProcessor;
 
 /**
  * $Id
@@ -24,7 +24,7 @@ import processor.DataProcessor;
 public class DataProcessorTest {
     @Test
     public void testGetDepartments() throws Exception {
-        String json = DataProcessor.getDepartments("Кор");
+        String json = DataToJSONProcessor.getDepartmentsList("Кор");
         System.out.println(json);
 
     }

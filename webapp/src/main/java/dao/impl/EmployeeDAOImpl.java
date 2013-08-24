@@ -8,31 +8,42 @@
 * Данные исходные коды не могут использоваться и быть изменены
 * без официального разрешения компании i-Teco.          
 */
-package factory;
+package dao.impl;
 
-import org.postgresql.ds.PGSimpleDataSource;
+import bean.Employee;
+import dao.core.EmployeeDAO;
+import factory.JdbcTemplateFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * $Id
  * <p>Title: </p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
- * <p>Date: 13.05.13</p>
+ * <p>Date: 21.08.13</p>
  *
  * @version 1.0
  */
-public class JdbcTemplateFactory {
-    //TODO: to properties
-    public static JdbcTemplate getDBTemplate() throws SQLException {
-        PGSimpleDataSource dataSource = new PGSimpleDataSource();
-        dataSource.setServerName("127.0.0.1");
-        dataSource.setDatabaseName("Orgstructure");
-        dataSource.setUser("admin");
-        dataSource.setPassword("admin");
+public class EmployeeDAOImpl implements EmployeeDAO{
+    @Override
+    public boolean create(Employee employee) throws SQLException {
+        JdbcTemplate template = JdbcTemplateFactory.getDBTemplate();
+        if (employee != null) {
+        }
 
-        return new JdbcTemplate(dataSource);
+        return true;
+    }
+
+    @Override
+    public Employee getEmployee(String id) {
+        return null;
+    }
+
+    @Override
+    public List<Employee> getEmployees() {
+        return null;
     }
 }

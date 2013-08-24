@@ -13,7 +13,7 @@ package service;
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import processor.DataProcessor;
+import processor.DataToJSONProcessor;
 import validation.Checker;
 
 import javax.ws.rs.*;
@@ -35,11 +35,62 @@ public class TreeService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getBasicTree(@QueryParam(value = "node") String nodeId) {
+    public String getBasicTree(@QueryParam(value = "node") String nodeId,
+                               @QueryParam(value = "term") String term) {
+        String jsonResultValue = "[{\"label\":\"No data\"}]";
+
         try {
-            String jsonResultValue = DataProcessor.getTreeDataFromId(nodeId);
-            if (!Checker.isNull(jsonResultValue)) {
-                return jsonResultValue;
+            jsonResultValue = !Checker.isNull(term) ?
+                    DataToJSONProcessor.getDepartmentsList(term)
+                    :
+                    DataToJSONProcessor.getNodeWithChildren(nodeId);
+        } catch (SQLException e) {
+            log.error(e);
+        } catch (JSONException e) {
+            log.error(e);
+        }
+
+        return jsonResultValue;
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_PLAIN)
+    public String createObject(@FormParam("json_data") JSONObject data) {
+        boolean result = true;
+
+        System.out.println(data);
+//        boolean result = false;
+//
+//        try {
+//            if (data.has("type")) {
+//                String type = data.getString("type");
+//
+//                if ("employee".equalsIgnoreCase(type)) {
+//                    EmployeeDAO employeeDAO = new EmployeeDAOImpl();
+//                    result = employeeDAO.create(new Employee("", "", "", 100));
+//                } else if ("department".equalsIgnoreCase(type)) {
+//                    DepartmentDAO depDAO = new DepartmentDAOImpl();
+//                    result = depDAO.create();
+//                }
+//            }
+//        } catch (JSONException e) {
+//            log.error(e);
+//        } catch (SQLException e) {
+//            log.error(e);
+//        }
+//
+        return result ? "success" : "fail";
+    }
+
+    @GET
+    @Path("/search")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getSearchResults(@QueryParam(value = "s") String searchTerm) {
+        String jsonResultValue = "[{\"label\":\"No data\"}]";
+        try {
+            if (!Checker.isNull(searchTerm)) {
+                jsonResultValue = DataToJSONProcessor.getSearchValsAsJSON(searchTerm);
             }
         } catch (SQLException e) {
             log.error(e);
@@ -47,22 +98,7 @@ public class TreeService {
             log.error(e);
         }
 
-        return "[{\"label\":\"No data\"}]";
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.TEXT_PLAIN)
-    public String doPost(@FormParam("json_data") JSONObject object) {
-        try {
-            if (object != null) {
-                System.out.println("Type: " + (object.has("type") ? object.get("type") : null));
-                System.out.println("Name: " + (object.has("name") ? object.get("name") : null));
-            }
-        } catch (JSONException e) {
-            log.error(e);
-            return "false";
-        }
-        return "success";
+        System.out.println(jsonResultValue);
+        return jsonResultValue;
     }
 }

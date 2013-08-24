@@ -19,199 +19,282 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <meta charset="utf-8"/>
-    <script src="${pageContext.request.contextPath}/js/jquery-2.0.3.js"></script>
-    <script src="${pageContext.request.contextPath}/js/tree.jquery.js"></script>
-    <script src="${pageContext.request.contextPath}/js/jquery-ui.js"></script>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/style/jqtree.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/style/ui-lightness/jquery-ui.css">
-    <title>Orgstructure_tree</title>
-    <style>
-        body {
-            font-size: 100%;
+<meta charset="utf-8"/>
+<script src="${pageContext.request.contextPath}/js/jquery-2.0.3.js"></script>
+<script src="${pageContext.request.contextPath}/js/tree.jquery.js"></script>
+<script src="${pageContext.request.contextPath}/js/jquery-ui.js"></script>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/style/jqtree.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/style/ui-lightness/jquery-ui.css">
+<title>Orgstructure_tree</title>
+<style>
+    body {
+        font-size: 100%;
+    }
+
+    label, input {
+        display: block;
+    }
+
+    input.text {
+        margin-bottom: 12px;
+        width: 95%;
+        padding: .4em;
+    }
+
+    fieldset {
+        padding: 0;
+        border: 0;
+        margin-top: 25px;
+    }
+
+    div#tree {
+        border: 5px solid navy;
+    }
+
+    h1 {
+        font-size: 1.2em;
+        margin: .6em 0;
+    }
+
+    .ui-dialog .ui-state-error {
+        padding: .3em;
+    }
+
+    .validateTips {
+        border: 1px solid transparent;
+        padding: 0.3em;
+    }
+</style>
+<script>
+$(function () {
+    var first_name = $("#first_name"),
+            last_name = $("#last_name"),
+            middle_name = $("#middle_name"),
+            type = $("#selector"),
+            allFields = $([]).add(first_name).add(last_name).add(middle_name),
+            tips = $(".validateTips");
+
+    var $tree = $("#tree");
+
+    function updateTips(t) {
+        tips
+                .text(t)
+                .addClass("ui-state-highlight");
+        setTimeout(function () {
+            tips.removeClass("ui-state-highlight", 1500);
+        }, 500);
+    }
+
+    function checkLength(o, n, min) {
+        if (o.val().length < min) {
+            o.addClass("ui-state-error");
+            //TODO
+            updateTips("Length of " + n + " must be not less " +
+                    min + ".");
+            return false;
+        } else {
+            return true;
         }
+    }
 
-        label, input {
-            display: block;
+    function checkRegexp(o, regexp, n) {
+        if (!( regexp.test(o.val()) )) {
+            o.addClass("ui-state-error");
+            updateTips(n);
+            return false;
+        } else {
+            return true;
         }
+    }
 
-        input.text {
-            margin-bottom: 12px;
-            width: 95%;
-            padding: .4em;
-        }
+    $("#dialog-form").dialog({
+        closeOnEscape: true,
+        autoOpen: false,
+        height: 500,
+        width: 350,
+        modal: true,
+        buttons: {
+            "Create": function () {
+                var $this = $(this);
 
-        fieldset {
-            padding: 0;
-            border: 0;
-            margin-top: 25px;
-        }
+                var bValid = true;
+                allFields.removeClass("ui-state-error");
 
-        div#tree {
-            border: 1px solid navy;
-        }
+                var json_string;
 
-        h1 {
-            font-size: 1.2em;
-            margin: .6em 0;
-        }
-
-        .ui-dialog .ui-state-error {
-            padding: .3em;
-        }
-
-        .validateTips {
-            border: 1px solid transparent;
-            padding: 0.3em;
-        }
-    </style>
-    <script>
-        $(function () {
-            var first_name = $("#first_name"),
-                    last_name = $("#last_name"),
-                    middle_name = $("#middle_name"),
-                    type = $("#selector"),
-                    allFields = $([]).add(first_name).add(last_name).add(middle_name),
-                    tips = $(".validateTips");
-
-            function updateTips(t) {
-                tips
-                        .text(t)
-                        .addClass("ui-state-highlight");
-                setTimeout(function () {
-                    tips.removeClass("ui-state-highlight", 1500);
-                }, 500);
-            }
-
-            function checkLength(o, n, min, max) {
-                if (o.val().length > max || o.val().length < min) {
-                    o.addClass("ui-state-error");
-                    updateTips("Length of " + n + " must be between " +
-                            min + " and " + max + ".");
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-
-            function checkRegexp(o, regexp, n) {
-                if (!( regexp.test(o.val()) )) {
-                    o.addClass("ui-state-error");
-                    updateTips(n);
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-
-            $("#dialog-form").dialog({
-                closeOnEscape: true,
-                autoOpen: false,
-                height: 400,
-                width: 350,
-                modal: true,
-                buttons: {
-                    "Create": function () {
-                        var $this = $(this);
-                        var bValid = true;
-                        allFields.removeClass("ui-state-error");
-
-                        var json_string;
-
-                        if ("employee" == type.val()) {
-                            bValid = bValid && checkLength(first_name, "first_name", 3, 16);
-                            bValid = bValid && checkLength(last_name, "last_name", 3, 16);
-                            bValid = bValid && checkLength(middle_name, "middle_name", 3, 16);
+                if ("employee" == type.val()) {
+                    bValid = bValid && checkLength(first_name, "first_name", 3);
+                    bValid = bValid && checkLength(last_name, "last_name", 3);
+                    bValid = bValid && checkLength(middle_name, "middle_name", 3);
 //                            bValid = bValid && checkLength($("#department"), "department", 3, 16);
 
-                            json_string = JSON.stringify(
-                                    {
-                                        type: type.val(),
-                                        first_name: first_name.val(),
-                                        last_name: last_name.val(),
-                                        middle_name: middle_name.val(),
-                                        department_id: $("#dep_id").val()
-                                    });
-                        } else if ("department" == type.val()) {
+                    json_string = JSON.stringify(
+                            {
+                                operation: "create",
+                                type: type.val(),
+                                first_name: first_name.val(),
+                                last_name: last_name.val(),
+                                middle_name: middle_name.val(),
+                                department_id: $("#dep_id").val()
+                            });
+                } else if ("department" == type.val()) {
 //                           //TODO:department creation
-                        }
-
-                        if (bValid) {
-                            $.post(
-                                    '${pageContext.request.contextPath}/rest/tree/',
-                                    {
-                                        json_data: json_string
-                                    },
-                                    function (data) {
-                                        if (data == 'success') {
-                                            $this.dialog("close");
-                                        }
-                                    }
-                            );
-                        }
-                    },
-                    Cancel: function () {
-                        $(this).dialog("close");
-                    }
-                },
-                close: function () {
-                    allFields.val("").removeClass("ui-state-error");
-                    location.href = location.href;
                 }
-            });
 
-            $("#create")
-                    .button()
-                    .click(function () {
-                        $("#dialog-form").dialog("open");
-                    });
-
-            $('#selector').change(function () {
-                var x = $(this).val();
-                $('#type_selector').hide();
-
-                if ("department" == x) {
-                    $('#create_department').show();
-                } else if ("employee" == x) {
-                    $('#create_user').show();
-                }
-            });
-
-            //TODO: can we create dynamic autocomplete function for different fields.
-            $("#department").autocomplete({
-                source: function (request, response) {
-                    $.getJSON(
-                            '${pageContext.request.contextPath}/rest/data/?term=' + request.term,
+                if (bValid) {
+                    $.post(
+                            '${pageContext.request.contextPath}/rest/tree/',
+                            {
+                                json_data: json_string
+                            },
                             function (data) {
-                                response($.map(data, function (item) {
-                                    return {
-                                        label: item.label,
-                                        value: item.label,
-                                        dep_id: item.id
-                                    }
-                                }));
+                                if (data == 'success') {
+                                    $this.dialog("close");
+                                }
                             }
                     );
-                },
-                minLength: 2,
-                select: function (event, ui) {
-//                    $(this).val(ui.item.label);
-                    $('#dep_id').val(ui.item.dep_id);
+                }
+            },
+            Cancel: function () {
+                $(this).dialog("close");
+            }
+        },
+        close: function () {
+            allFields.val("").removeClass("ui-state-error");
+            location.href = location.href;
+        }
+    });
 
-//                    log(ui.item ?
-//                            "Selected: " + ui.item.label :
-//                            "Nothing selected, input was " + this.value);
-                },
-                focus: function (event, ui) {
-//                    this.(ui.item.name);
-                    $('#dep_id').val(ui.item.value);
+    //Button events
+    $("#create_button")
+            .button()
+            .click(function () {
+                $("#dialog-form").dialog("open");
+            });
+
+    $("#delete_button")
+            .button({icon: {primary: "ui-icon-trash"}})
+            .hide()
+            .click(function () {
+                var node = $tree.tree('getSelectedNode');
+                if (node != false) {
+                    $.post(
+                            '${pageContext.request.contextPath}/rest/tree/',
+                            {
+                                json_data: JSON.stringify(
+                                        {
+                                            operation: "delete",
+                                            type: node.type,
+                                            id: node.id
+                                        })
+                            },
+                            function (data) {
+                                //TODO
+                                location.href = location.href;
+                            }
+                    );
                 }
             });
-        });
-    </script>
+
+    $("#search_button")
+            .button()
+            .click(function () {
+                var bVal = true;
+                var searchVal = $("#search").find("input");
+
+                bVal = bVal && checkLength(searchVal, "search_field", 3);
+
+//                var node = $tree.tree('getNodeById', 6);
+//                if (node != null) {
+//                    $tree.tree("scrollToNode", node);
+//                    var data = node.getData();
+//                }
+
+                if (bVal) {
+                    $.getJSON(
+                            '${pageContext.request.contextPath}/rest/tree/search/?s=' + searchVal.val(),
+                            function (data) {
+                                $.each(data, function (index, item) {
+//                                    var node = $tree.tree('getNodeById', item.id);
+
+
+                                    $.each(item.path, function (index, path_id) {
+                                        var node = $tree.tree('getNodeById', path_id);
+
+                                        if ('department' == node.type) {
+                                            $tree.tree("openNode", node);
+                                        }
+
+//                                        node.element.css(
+//                                                {
+//                                                    backgroundColor: 'red'
+//                                                }
+//                                        );
+                                    });
+                                });
+                            }
+                    );
+                }
+            }
+    );
+
+    //Selector change
+    $('#selector').change(function () {
+        var x = $(this).val();
+        $('#type_selector').hide();
+
+        if ("department" == x) {
+            $('#create_department').show();
+        } else if ("employee" == x) {
+            $('#create_user').show();
+        }
+    });
+
+
+    $('#tree').bind(
+            'tree.select',
+            function (event) {
+                $deleteButton = $("#delete_button");
+                event.node ? $deleteButton.show() : $deleteButton.hide();
+            }
+    );
+
+    //Autocomplete realization
+    $(".custom_autocomplete").autocomplete({
+        source: function (request, response) {
+            $.getJSON(
+                    '${pageContext.request.contextPath}/rest/tree/?term=' + request.term,
+                    function (data) {
+                        response($.map(data, function (item) {
+                            return {
+                                label: item.label,
+                                value: item.label,
+                                dep_id: item.id
+                            }
+                        }));
+                    }
+            );
+        },
+        minLength: 2,
+        select: function (event, ui) {
+            $('.hidden_autocomplete_val').val(ui.item.dep_id);
+        }
+    });
+});
+</script>
 </head>
 <body>
-<button id="create">Создать</button>
+
+
+<div id="search" style="width:10%; margin:0; float : left">
+    <input type="text" name="search_field" id="search_field" class="text ui-widget-content ui-corner-all"/>
+</div>
+<div id="buttons">
+    <%--TODO: иконки кнопкам--%>
+    <button id="search_button">Поиск</button>
+    <button id="create_button">Создать</button>
+    <button id="delete_button">Удалить</button>
+</div>
 <div id="dialog-form" title="Create node">
     <p class="validateTips">All form fields are required.</p>
 
@@ -234,8 +317,8 @@
             <input type="text" name="last_name" id="last_name" class="text ui-widget-content ui-corner-all"/>
             <label for="department">Department</label>
             <input type="text" name="department" id="department"
-                   class="text ui-widget-content ui-corner-all"/>
-            <input type="hidden" id="dep_id"/>
+                   class="text ui-widget-content ui-corner-all custom_autocomplete"/>
+            <input type="hidden" value="null" id="dep_id" class="hidden_autocomplete_val"/>
         </fieldset>
     </form>
 
@@ -246,8 +329,8 @@
                    class="text ui-widget-content ui-corner-all"/>
             <label for="parent_dep_name">Parent department name</label>
             <input type="text" name="parent_dep_name" id="parent_dep_name"
-                   class="text ui-widget-content ui-corner-all"/>
-            <input type="hidden" id="parent_dep_id"/>
+                   class="text ui-widget-content ui-corner-all custom_autocomplete"/>
+            <input type="hidden" id="parent_dep_id" class="hidden_autocomplete_val"/>
         </fieldset>
     </form>
 </div>

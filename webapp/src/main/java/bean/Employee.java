@@ -22,10 +22,37 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @version 1.0
  */
 public class Employee {
+    private Integer id;
     @JsonProperty(value = "label")
-    public String first_name;
+    private String first_name;
+    private String last_name;
+    private String middle_name;
+    private Integer dep_id;
 
-    public Employee(String name) {
-        this.first_name = name;
+    public Employee(String first_name, String last_name, String middle_name, Integer dep_id) {
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.middle_name = middle_name;
+        this.dep_id = dep_id;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public String getMiddle_name() {
+        return middle_name;
+    }
+
+    public Integer getDep_id() {
+        return dep_id;
     }
 }

@@ -10,7 +10,6 @@
 */
 
 import bean.Department;
-import bean.Employee;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
@@ -31,9 +30,9 @@ public class ObjectMapperTest {
 
         Department dep = new Department();
         dep.setName("I-Teco");
-        dep.addEmployee(new Employee("Gerard"));
-        dep.addEmployee(new Employee("Nikita"));
-        dep.addEmployee(new Employee("Alex"));
+//        dep.addEmployee(new Employee("Gerard"));
+//        dep.addEmployee(new Employee("Nikita"));
+//        dep.addEmployee(new Employee("Alex"));
 
         ArrayList<Department> arr = new ArrayList<Department>();
         arr.add(dep);

@@ -8,28 +8,19 @@
 * Данные исходные коды не могут использоваться и быть изменены
 * без официального разрешения компании i-Teco.          
 */
-
-import org.junit.Test;
-import service.TreeService;
+package processor;
 
 /**
  * $Id
  * <p>Title: </p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
- * <p>Date: 17.08.13</p>
+ * <p>Date: 21.08.13</p>
  *
  * @version 1.0
  */
-public class TestTreeService {
-    @Test
-    public void testGetTreeJson() throws Exception {
-        TreeService service = new TreeService();
-    }
+public class JSONConstr {
+    public void getJSONFromObject() {
 
-    @Test
-    public void testGetBasicTree() throws Exception {
-        TreeService service = new TreeService();
-//        System.out.println(service.getBasicTree(null));
     }
 }
