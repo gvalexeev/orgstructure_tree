@@ -64,17 +64,17 @@
         border: 1px solid transparent;
         padding: 0.3em;
     }
+
+    .li-searched {
+        background: darkred;
+    }
 </style>
 <script>
 $(function () {
-    var first_name = $("#first_name"),
-            last_name = $("#last_name"),
-            middle_name = $("#middle_name"),
-            type = $("#selector"),
-            allFields = $([]).add(first_name).add(last_name).add(middle_name),
-            tips = $(".validateTips");
-
-    var $tree = $("#tree");
+    var type = $(".hidden_type_val"),
+            tips = $(".validateTips"),
+            $tree = $("#tree"),
+            allFields;
 
     function updateTips(t) {
         tips
@@ -97,10 +97,10 @@ $(function () {
         }
     }
 
-    function checkRegexp(o, regexp, n) {
-        if (!( regexp.test(o.val()) )) {
+    function checkId(o) {
+        if (o.val == null) {
             o.addClass("ui-state-error");
-            updateTips(n);
+            updateTips("Данное поле не заполнено.");
             return false;
         } else {
             return true;
@@ -113,59 +113,88 @@ $(function () {
         height: 500,
         width: 350,
         modal: true,
-        buttons: {
-            "Create": function () {
-                var $this = $(this);
+        buttons: [
+            {
+                id: 'Create',
+                text: "Создать",
+//                disabled: true,
+                click: function () {
+                    var $this = $(this),
+                            bValid = true,
+                            json_string,
+                            autocomplete_id = $(".hidden_autocomplete_val");
 
-                var bValid = true;
-                allFields.removeClass("ui-state-error");
+                    if ("employee" == type.val()) {
+                        var first_name = $("#first_name"),
+                                last_name = $("#last_name"),
+                                middle_name = $("#middle_name"),
+                                allEmplFields = $([]).add(first_name).add(last_name).add(middle_name);
 
-                var json_string;
+                        allEmplFields.removeClass("ui-state-error");
+                        allFields = allEmplFields;
 
-                if ("employee" == type.val()) {
-                    bValid = bValid && checkLength(first_name, "first_name", 3);
-                    bValid = bValid && checkLength(last_name, "last_name", 3);
-                    bValid = bValid && checkLength(middle_name, "middle_name", 3);
-//                            bValid = bValid && checkLength($("#department"), "department", 3, 16);
+                        bValid = bValid && checkLength(first_name, "first_name", 3);
+                        bValid = bValid && checkLength(last_name, "last_name", 3);
+                        bValid = bValid && checkLength(middle_name, "middle_name", 3);
+                        bValid = bValid && checkId(autocomplete_id);
 
-                    json_string = JSON.stringify(
-                            {
-                                operation: "create",
-                                type: type.val(),
-                                first_name: first_name.val(),
-                                last_name: last_name.val(),
-                                middle_name: middle_name.val(),
-                                department_id: $("#dep_id").val()
-                            });
-                } else if ("department" == type.val()) {
-//                           //TODO:department creation
-                }
+                        json_string = JSON.stringify(
+                                {
+                                    operation: "create",
+                                    type: type.val(),
+                                    first_name: first_name.val(),
+                                    last_name: last_name.val(),
+                                    middle_name: middle_name.val(),
+                                    department_id: autocomplete_id.val()
+                                });
+                    } else if ("department" == type.val()) {
+                        var dep_name = $('#dep_name'),
+                                all_dep_fields = $([]).add(dep_name);
+                        all_dep_fields.removeClass("ui-state-error");
 
-                if (bValid) {
-                    $.post(
-                            '${pageContext.request.contextPath}/rest/tree/',
-                            {
-                                json_data: json_string
-                            },
-                            function (data) {
-                                if (data == 'success') {
-                                    $this.dialog("close");
+                        bValid = bValid && checkLength(dep_name, "Department name", 3);
+                        bValid = bValid && checkId(autocomplete_id);
+
+
+                        json_string = JSON.stringify(
+                                {
+                                    operation: "create",
+                                    type: type.val(),
+                                    name: dep_name.val(),
+                                    parent_id: autocomplete_id.val()
+                                });
+                    }
+
+                    if (bValid) {
+                        $.post(
+                                '${pageContext.request.contextPath}/rest/tree/',
+                                {
+                                    json_data: json_string
+                                },
+                                function (data) {
+                                    if (data == 'success') {
+                                        $this.dialog("close");
+                                    }
                                 }
-                            }
-                    );
+                        );
+                    }
                 }
             },
-            Cancel: function () {
-                $(this).dialog("close");
+            {
+                text: 'Cancel',
+                click: function () {
+                    $(this).dialog("close");
+                }
             }
-        },
+        ],
         close: function () {
-            allFields.val("").removeClass("ui-state-error");
+//            allFields.val("").removeClass("ui-state-error");
             location.href = location.href;
         }
+
     });
 
-    //Button events
+//Button events
     $("#create_button")
             .button()
             .click(function () {
@@ -173,29 +202,66 @@ $(function () {
             });
 
     $("#delete_button")
-            .button({icon: {primary: "ui-icon-trash"}})
+            .button({icon: {primary: ".ui-icon-trash"}})
             .hide()
             .click(function () {
                 var node = $tree.tree('getSelectedNode');
                 if (node != false) {
-                    $.post(
-                            '${pageContext.request.contextPath}/rest/tree/',
-                            {
-                                json_data: JSON.stringify(
-                                        {
-                                            operation: "delete",
-                                            type: node.type,
-                                            id: node.id
-                                        })
-                            },
-                            function (data) {
-                                //TODO
-                                location.href = location.href;
-                            }
-                    );
-                }
-            });
+//                    var parent_node = node.parent;
 
+                    if (node.isFolder()) {
+                        if (!node.is_open && node.load_on_demand) {
+                            $tree.tree("openNode", node)
+                                    .done(function () {
+                                        postDeleteOperation(node);
+                                    }
+                            );
+                        } else {
+                            postDeleteOperation(node);
+                        }
+                    } else {
+                        postDeleteOperation(node);
+                    }
+                }
+            }
+    );
+
+    function postDeleteOperation(node) {
+        if (!node.hasChildren()) {
+            $.post(
+                    '${pageContext.request.contextPath}/rest/tree/',
+                    {
+                        json_data: JSON.stringify(
+                                {
+                                    operation: "delete",
+                                    type: node.type,
+                                    id: node.id
+                                })
+                    },
+                    function (data) {
+                        //TODO нормальное обновление страницы или обновление родительской ноды
+                        location.href = location.href;
+                    }
+            );
+        } else {
+            $("#message-form").dialog("open");
+        }
+    }
+
+    $("#message-form").dialog({
+        closeOnEscape: true,
+        height: 400,
+        width: 350,
+        autoOpen: false,
+        modal: true,
+        buttons: {
+            Ok: function () {
+                $(this).dialog("close");
+            }
+        }
+    });
+
+//Поиск TODO
     $("#search_button")
             .button()
             .click(function () {
@@ -204,42 +270,37 @@ $(function () {
 
                 bVal = bVal && checkLength(searchVal, "search_field", 3);
 
-//                var node = $tree.tree('getNodeById', 6);
-//                if (node != null) {
-//                    $tree.tree("scrollToNode", node);
-//                    var data = node.getData();
-//                }
-
                 if (bVal) {
                     $.getJSON(
                             '${pageContext.request.contextPath}/rest/tree/search/?s=' + searchVal.val(),
                             function (data) {
                                 $.each(data, function (index, item) {
-//                                    var node = $tree.tree('getNodeById', item.id);
-
-
                                     $.each(item.path, function (index, path_id) {
                                         var node = $tree.tree('getNodeById', path_id);
 
-                                        if ('department' == node.type) {
-                                            $tree.tree("openNode", node);
+                                        if (node.isFolder()) {
+                                            if (!node.is_open && node.load_on_demand) {
+                                                $tree.tree("openNode", node)
+                                                        .done(function () {
+                                                            $(node.element).addClass(".li-searched");
+                                                        });
+                                            } else {
+                                                $(node.element).addClass(".li-searched");
+                                            }
+                                        } else {
+                                            $(node.element).addClass(".li-searched");
                                         }
-
-//                                        node.element.css(
-//                                                {
-//                                                    backgroundColor: 'red'
-//                                                }
-//                                        );
                                     });
                                 });
-                            }
-                    );
+                            });
                 }
             }
     );
 
-    //Selector change
-    $('#selector').change(function () {
+
+
+//Selector change
+    $('#type_selector').change(function () {
         var x = $(this).val();
         $('#type_selector').hide();
 
@@ -248,22 +309,32 @@ $(function () {
         } else if ("employee" == x) {
             $('#create_user').show();
         }
+
+        $('.hidden_type_val').val(x);
+
+//        var buttons = $("#dialog-form").dialog("option", "buttons");
+//        $.each(buttons, function (index, button) {
+//             if () {
+//
+//             }
+//        });
+
     });
 
 
     $('#tree').bind(
             'tree.select',
             function (event) {
-                $deleteButton = $("#delete_button");
+                var $deleteButton = $("#delete_button");
                 event.node ? $deleteButton.show() : $deleteButton.hide();
             }
     );
 
-    //Autocomplete realization
+//Autocomplete realization
     $(".custom_autocomplete").autocomplete({
         source: function (request, response) {
             $.getJSON(
-                    '${pageContext.request.contextPath}/rest/tree/?term=' + request.term,
+                    '${pageContext.request.contextPath}/rest/tree/term/?term=' + request.term,
                     function (data) {
                         response($.map(data, function (item) {
                             return {
@@ -280,7 +351,8 @@ $(function () {
             $('.hidden_autocomplete_val').val(ui.item.dep_id);
         }
     });
-});
+})
+;
 </script>
 </head>
 <body>
@@ -298,9 +370,9 @@ $(function () {
 <div id="dialog-form" title="Create node">
     <p class="validateTips">All form fields are required.</p>
 
-    <form id="type_selector">
-        <label for="selector">Select object to create</label>
-        <select id="selector" name="selector">
+    <form id="selector">
+        <label for="type_selector">Select object to create</label>
+        <select id="type_selector" name="type_selector">
             <option value="">Choose value</option>
             <option value="department">Department</option>
             <option value="employee">Employee</option>
@@ -319,6 +391,7 @@ $(function () {
             <input type="text" name="department" id="department"
                    class="text ui-widget-content ui-corner-all custom_autocomplete"/>
             <input type="hidden" value="null" id="dep_id" class="hidden_autocomplete_val"/>
+            <input type="hidden" value="null" id="emp_type" class="hidden_type_val"/>
         </fieldset>
     </form>
 
@@ -331,16 +404,26 @@ $(function () {
             <input type="text" name="parent_dep_name" id="parent_dep_name"
                    class="text ui-widget-content ui-corner-all custom_autocomplete"/>
             <input type="hidden" id="parent_dep_id" class="hidden_autocomplete_val"/>
+            <input type="hidden" value="null" id="dep_type" class="hidden_type_val"/>
         </fieldset>
     </form>
 </div>
 
-<div id="tree" style="width:100%; margin:0; padding: 10px" data-url='${pageContext.request.contextPath}/rest/tree/'>
+<div id="message-form" title="Message">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 50px 0;"></span>
+        Невозможно удалить узел! Удостоверьтесь что узел не содержит дочерние элементы
+    </p>
+</div>
+
+<div id="tree" style="width:100%; margin:0; padding: 10px">
     <script type="text/javascript">
         $.getJSON(
-                '${pageContext.request.contextPath}/rest/tree/',
+                '${pageContext.request.contextPath}/rest/tree/node/',
                 function (data) {
                     $('#tree').tree({
+                        dataUrl: '${pageContext.request.contextPath}/rest/tree/node/',
+//                        saveState: true,
                         data: data,
                         autoOpen: false
                     });

@@ -10,9 +10,14 @@
 */
 package bean;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import constants.IConstants;
+import factory.JdbcTemplateFactory;
+import org.codehaus.jettison.json.JSONException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import utils.Queries;
 
-import java.util.List;
+import javax.naming.ConfigurationException;
+import java.sql.SQLException;
 
 /**
  * $Id
@@ -24,15 +29,15 @@ import java.util.List;
  * @version 1.0
  */
 public class Department {
-    @JsonProperty(value = "id")
     private Integer id;
-    @JsonProperty(value = "label")
+    //    @JsonProperty(value = "label")
     private String name;
-    private List<Employee> employees;
-    private List<Department> departments;
+    private Integer parentId;
 
-    @JsonProperty(value = "load_on_demand")
-    private final boolean loadOnDemand = true;
+    public Department(String name, Integer parentId) {
+        this.name = name;
+        this.parentId = parentId;
+    }
 
     public String getName() {
         return name;
@@ -50,31 +55,34 @@ public class Department {
         this.id = id;
     }
 
-    public List<Employee> getEmployees() {
-        return employees;
+    public Integer getParentId() {
+        return parentId;
     }
 
-    public void setEmployees(List<Employee> employees) {
-        this.employees = employees;
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
     }
 
-    public List<Department> getDepartments() {
-        return departments;
+    public static boolean create(Department dep) throws SQLException, JSONException, ConfigurationException {
+        JdbcTemplate template = JdbcTemplateFactory.getDBTemplate();
+
+        int result = template.update(
+                Queries.getQuery(IConstants.Queries.CREATE_DEPARTMENT),
+                dep.getName(),
+                dep.getParentId()
+        );
+
+        return result != 0;
     }
 
-    public void setDepartments(List<Department> departments) {
-        this.departments = departments;
-    }
+    public static boolean delete(int id) throws SQLException, JSONException, ConfigurationException {
+        JdbcTemplate template = JdbcTemplateFactory.getDBTemplate();
 
-    public void addEmployee(Employee empl) {
-        employees.add(empl);
-    }
+        int result = template.update(
+                Queries.getQuery(IConstants.Queries.DELETE_DEPARTMENT),
+                id
+        );
 
-    public void addDepartment(Department dep) {
-        departments.add(dep);
-    }
-
-    public boolean isLoadOnDemand() {
-        return loadOnDemand;
+        return result != 0;
     }
 }

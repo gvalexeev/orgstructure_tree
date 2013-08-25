@@ -10,9 +10,12 @@
 */
 package factory;
 
+import constants.IConstants;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import utils.Config;
 
+import javax.naming.ConfigurationException;
 import java.sql.SQLException;
 
 /**
@@ -26,12 +29,12 @@ import java.sql.SQLException;
  */
 public class JdbcTemplateFactory {
     //TODO: to properties
-    public static JdbcTemplate getDBTemplate() throws SQLException {
+    public static JdbcTemplate getDBTemplate() throws SQLException, ConfigurationException {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
-        dataSource.setServerName("127.0.0.1");
-        dataSource.setDatabaseName("Orgstructure");
-        dataSource.setUser("admin");
-        dataSource.setPassword("admin");
+        dataSource.setServerName(Config.getConfig(IConstants.DBConfig.HOST));
+        dataSource.setDatabaseName(Config.getConfig(IConstants.DBConfig.DATABASE));
+        dataSource.setUser(Config.getConfig(IConstants.DBConfig.USER));
+        dataSource.setPassword(Config.getConfig(IConstants.DBConfig.PASSWORD));
 
         return new JdbcTemplate(dataSource);
     }

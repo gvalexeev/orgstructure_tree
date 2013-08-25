@@ -10,7 +10,15 @@
 */
 package bean;
 
+import constants.IConstants;
+import factory.JdbcTemplateFactory;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jettison.json.JSONException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import utils.Queries;
+
+import javax.naming.ConfigurationException;
+import java.sql.SQLException;
 
 /**
  * $Id
@@ -24,35 +32,85 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class Employee {
     private Integer id;
     @JsonProperty(value = "label")
-    private String first_name;
-    private String last_name;
-    private String middle_name;
-    private Integer dep_id;
+    private String firstName;
+    private String lastName;
+    private String middleName;
+    private String fio;
+    private Integer depId;
 
     public Employee(String first_name, String last_name, String middle_name, Integer dep_id) {
-        this.first_name = first_name;
-        this.last_name = last_name;
-        this.middle_name = middle_name;
-        this.dep_id = dep_id;
+        this.firstName = first_name;
+        this.lastName = last_name;
+        this.middleName = middle_name;
+        this.depId = dep_id;
     }
 
     public Integer getId() {
         return id;
     }
 
-    public String getFirst_name() {
-        return first_name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public String getLast_name() {
-        return last_name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getMiddle_name() {
-        return middle_name;
+    public String getLastName() {
+        return lastName;
     }
 
-    public Integer getDep_id() {
-        return dep_id;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public String getFio() {
+        return fio;
+    }
+
+    public void setFio(String fio) {
+        this.fio = fio;
+    }
+
+    public Integer getDepId() {
+        return depId;
+    }
+
+    public void setDepId(Integer depId) {
+        this.depId = depId;
+    }
+
+    public static boolean create(Employee employee) throws SQLException, JSONException, ConfigurationException {
+        JdbcTemplate template = JdbcTemplateFactory.getDBTemplate();
+
+        int result = template.update(
+                Queries.getQuery(IConstants.Queries.CREATE_EMPLOYEE),
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getMiddleName(),
+                employee.getDepId()
+        );
+
+        return result != 0;
+    }
+
+    public static boolean delete(int id) throws SQLException, JSONException, ConfigurationException {
+        JdbcTemplate template = JdbcTemplateFactory.getDBTemplate();
+
+        int result = template.update(
+                Queries.getQuery(IConstants.Queries.DELETE_EMPLOYEE),
+                id
+        );
+
+        return result != 0;
     }
 }

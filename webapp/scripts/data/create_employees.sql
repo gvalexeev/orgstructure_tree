@@ -1,6 +1,6 @@
 INSERT INTO employee (first_name, last_name, middle_name, fio, dep_id)
   VALUES
-  ('Герард', 'Алексеев', 'Викторович', 'Алексеев Г.В.',
+  ('Герард', 'Алексеев', 'Викторович', last_name || LEFT(first_name, 1) || '.' || LEFT(middle_name, 1) || '.',
    (SELECT
       id
     FROM department

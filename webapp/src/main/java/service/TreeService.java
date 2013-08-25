@@ -10,12 +10,18 @@
 */
 package service;
 
+import bean.Department;
+import bean.Employee;
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import processor.DataToJSONProcessor;
+import script.core.ITransactionScript;
+import script.impl.DepartmentTrScript;
+import script.impl.PathRelationTrScript;
+import utils.Utils;
 import validation.Checker;
 
+import javax.naming.ConfigurationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.sql.SQLException;
@@ -34,53 +40,109 @@ public class TreeService {
     private Logger log = Logger.getRootLogger();
 
     @GET
+    @Path("/node")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getBasicTree(@QueryParam(value = "node") String nodeId,
-                               @QueryParam(value = "term") String term) {
+    public String getNodeById(@QueryParam(value = "node") int nodeId) {
         String jsonResultValue = "[{\"label\":\"No data\"}]";
 
         try {
-            jsonResultValue = !Checker.isNull(term) ?
-                    DataToJSONProcessor.getDepartmentsList(term)
-                    :
-                    DataToJSONProcessor.getNodeWithChildren(nodeId);
+            ITransactionScript trScript = new DepartmentTrScript(nodeId);
+            jsonResultValue = trScript.run();
         } catch (SQLException e) {
             log.error(e);
         } catch (JSONException e) {
+            log.error(e);
+        } catch (ConfigurationException e) {
             log.error(e);
         }
 
         return jsonResultValue;
     }
 
+    @GET
+    @Path("/term")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getDepartmentsWithTerm(@QueryParam(value = "term") String term) {
+        String jsonResultValue = "[{\"label\":\"No data\"}]";
+
+        try {
+            if (!Checker.isNull(term)) {
+                ITransactionScript trScript = new DepartmentTrScript(term);
+                jsonResultValue = trScript.run();
+            }
+        } catch (SQLException e) {
+            log.error(e);
+        } catch (JSONException e) {
+            log.error(e);
+        } catch (ConfigurationException e) {
+            log.error(e);
+        }
+        return jsonResultValue;
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_PLAIN)
-    public String createObject(@FormParam("json_data") JSONObject data) {
-        boolean result = true;
+    public String performOperation(@FormParam("json_data") JSONObject data) {
+        boolean result = false;
 
-        System.out.println(data);
-//        boolean result = false;
-//
-//        try {
-//            if (data.has("type")) {
-//                String type = data.getString("type");
-//
-//                if ("employee".equalsIgnoreCase(type)) {
-//                    EmployeeDAO employeeDAO = new EmployeeDAOImpl();
-//                    result = employeeDAO.create(new Employee("", "", "", 100));
-//                } else if ("department".equalsIgnoreCase(type)) {
-//                    DepartmentDAO depDAO = new DepartmentDAOImpl();
-//                    result = depDAO.create();
-//                }
-//            }
-//        } catch (JSONException e) {
-//            log.error(e);
-//        } catch (SQLException e) {
-//            log.error(e);
-//        }
-//
+        try {
+            if (data.has("type") && data.has("operation")) {
+                switch (Utils.checkOperationType(data.getString("operation"))) {
+                    case 1:
+                        result = performCreateOperation(data);
+                        break;
+                    case 2:
+                        result = performDeleteOperation(data);
+                        break;
+                }
+            }
+        } catch (JSONException e) {
+            log.error(e);
+        } catch (SQLException e) {
+            log.error(e);
+        } catch (ConfigurationException e) {
+            log.error(e);
+        }
+
         return result ? "success" : "fail";
+    }
+
+    private boolean performCreateOperation(JSONObject data) throws JSONException, SQLException, ConfigurationException {
+        String type = data.getString("type");
+
+        if ("employee".equalsIgnoreCase(type)) {
+            Employee employee = new Employee(
+                    data.getString("first_name"),
+                    data.getString("last_name"),
+                    data.getString("middle_name"),
+                    data.getInt("department_id")
+            );
+
+            return Employee.create(employee);
+        } else if ("department".equalsIgnoreCase(type)) {
+            Department department = new Department(
+                    data.getString("name"),
+                    data.getInt("parent_id")
+            );
+
+            return Department.create(department);
+        }
+
+        return false;
+    }
+
+    private boolean performDeleteOperation(JSONObject data) throws JSONException, SQLException, ConfigurationException {
+        String type = data.getString("type");
+        int id = data.getInt("id");
+
+        if ("employee".equalsIgnoreCase(type)) {
+            return Employee.delete(id);
+        } else if ("department".equalsIgnoreCase(type)) {
+            return Department.delete(id);
+        }
+
+        return false;
     }
 
     @GET
@@ -90,15 +152,16 @@ public class TreeService {
         String jsonResultValue = "[{\"label\":\"No data\"}]";
         try {
             if (!Checker.isNull(searchTerm)) {
-                jsonResultValue = DataToJSONProcessor.getSearchValsAsJSON(searchTerm);
+                ITransactionScript trScript = new PathRelationTrScript(searchTerm);
+                jsonResultValue = trScript.run();
             }
         } catch (SQLException e) {
             log.error(e);
         } catch (JSONException e) {
             log.error(e);
+        } catch (ConfigurationException e) {
+            log.error(e);
         }
-
-        System.out.println(jsonResultValue);
         return jsonResultValue;
     }
 }

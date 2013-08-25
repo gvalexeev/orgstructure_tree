@@ -8,26 +8,28 @@
 * Данные исходные коды не могут использоваться и быть изменены
 * без официального разрешения компании i-Teco.          
 */
-package dao.core;
+package utils;
 
-import bean.Department;
-
-import java.sql.SQLException;
-import java.util.List;
+import constants.IConstants;
 
 /**
  * $Id
  * <p>Title: </p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
- * <p>Date: 21.08.13</p>
+ * <p>Date: 25.08.13</p>
  *
  * @version 1.0
  */
-public interface DepartmentDAO {
-    public boolean create();
+public class Utils {
+    public static int checkOperationType(String operation) {
+        if (IConstants.Operation.CREATE.equalsIgnoreCase(operation)) {
+            return 1;
+        } else if (IConstants.Operation.DELETE.equalsIgnoreCase(operation)) {
+            return 2;
+        }
 
-    public Department getDepartment(String id) throws SQLException;
+        return 0;
+    }
 
-    public List<Department> getDepartments();
 }
