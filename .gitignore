@@ -1,8 +1,6 @@
 *.class
 
 # Package Files #
-*.jar
-*.war
 *.ear
 
 # IDEA files #
@@ -10,3 +8,4 @@
 /.idea/
 /logs/
 /target/
+/classes/
