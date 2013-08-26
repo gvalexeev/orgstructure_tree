@@ -88,7 +88,6 @@ $(function () {
     function checkLength(o, n, min) {
         if (o.val().length < min) {
             o.addClass("ui-state-error");
-            //TODO
             updateTips("Длина строки " + n + " должна быть не менее " +
                     min + " символов.");
             return false;
@@ -107,6 +106,7 @@ $(function () {
         }
     }
 
+    //TODO: код ужасен(((
     $("#dialog-form").dialog({
         closeOnEscape: true,
         autoOpen: false,
