@@ -89,8 +89,8 @@ $(function () {
         if (o.val().length < min) {
             o.addClass("ui-state-error");
             //TODO
-            updateTips("Length of " + n + " must be not less " +
-                    min + ".");
+            updateTips("Длина строки " + n + " должна быть не менее " +
+                    min + " символов.");
             return false;
         } else {
             return true;
@@ -154,7 +154,6 @@ $(function () {
 
                         bValid = bValid && checkLength(dep_name, "Department name", 3);
                         bValid = bValid && checkId(autocomplete_id);
-
 
                         json_string = JSON.stringify(
                                 {
@@ -368,42 +367,42 @@ $(function () {
     <button id="delete_button">Удалить</button>
 </div>
 <div id="dialog-form" title="Create node">
-    <p class="validateTips">All form fields are required.</p>
+    <p class="validateTips">Все поля необходимы для заполнения</p>
 
     <form id="selector">
-        <label for="type_selector">Select object to create</label>
+        <label for="type_selector">Выберите тип создаваемого объекта</label>
         <select id="type_selector" name="type_selector">
-            <option value="">Choose value</option>
-            <option value="department">Department</option>
-            <option value="employee">Employee</option>
+            <option value="">Выберите значение</option>
+            <option value="department">Департамент</option>
+            <option value="employee">Сотрудник</option>
         </select>
     </form>
 
     <form id="create_user" hidden>
         <fieldset>
-            <label for="first_name">First name</label>
+            <label for="first_name">Имя</label>
             <input type="text" name="first_name" id="first_name" class="text ui-widget-content ui-corner-all"/>
-            <label for="middle_name">Middle name</label>
+            <label for="middle_name">Отчество</label>
             <input type="text" name="middle_name" id="middle_name" class="text ui-widget-content ui-corner-all"/>
-            <label for="last_name">Last name</label>
+            <label for="last_name">Фамилия</label>
             <input type="text" name="last_name" id="last_name" class="text ui-widget-content ui-corner-all"/>
-            <label for="department">Department</label>
+            <label for="department">Департамент</label>
             <input type="text" name="department" id="department"
                    class="text ui-widget-content ui-corner-all custom_autocomplete"/>
-            <input type="hidden" value="null" id="dep_id" class="hidden_autocomplete_val"/>
+            <input type="hidden" value="0" id="dep_id" class="hidden_autocomplete_val"/>
             <input type="hidden" value="null" id="emp_type" class="hidden_type_val"/>
         </fieldset>
     </form>
 
     <form id="create_department" hidden>
         <fieldset>
-            <label for="dep_name">Department name</label>
+            <label for="dep_name">Наименование департамента</label>
             <input type="text" name="dep_name" id="dep_name"
                    class="text ui-widget-content ui-corner-all"/>
-            <label for="parent_dep_name">Parent department name</label>
+            <label for="parent_dep_name">Наименование родительского департамента</label>
             <input type="text" name="parent_dep_name" id="parent_dep_name"
                    class="text ui-widget-content ui-corner-all custom_autocomplete"/>
-            <input type="hidden" id="parent_dep_id" class="hidden_autocomplete_val"/>
+            <input type="hidden" value="0" id="parent_dep_id" class="hidden_autocomplete_val"/>
             <input type="hidden" value="null" id="dep_type" class="hidden_type_val"/>
         </fieldset>
     </form>

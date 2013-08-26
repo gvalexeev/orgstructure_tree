@@ -12,7 +12,7 @@ package constants;
 
 /**
  * $Id
- * <p>Title: </p>
+ * <p>Title: Интерфейс с константами</p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
  * <p>Date: 24.08.13</p>

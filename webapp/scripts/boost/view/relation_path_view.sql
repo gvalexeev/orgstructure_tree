@@ -5,7 +5,7 @@ CREATE OR replace VIEW relation_path_view AS (
     FROM 
       departments_and_employees_view 
     WHERE 
-      parent_id is null
+      parent_id IS NULL
     UNION 
         SELECT
           dep_empl.name, 
@@ -25,5 +25,5 @@ CREATE OR replace VIEW relation_path_view AS (
             path.level + 1
         FROM departments_and_employees_view dep_empl, path
         WHERE dep_empl.parent_id = path.id)
-  select * from path
+  SELECT * FROM path
 );

@@ -17,7 +17,7 @@ import java.util.Properties;
 
 /**
  * $Id
- * <p>Title: </p>
+ * <p>Title: Утилитарный класс для работы с файлом-контейнером запросов</p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
  * <p>Date: 21.08.13</p>

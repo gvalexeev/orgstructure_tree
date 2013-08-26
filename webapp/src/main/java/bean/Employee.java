@@ -12,7 +12,6 @@ package bean;
 
 import constants.IConstants;
 import factory.JdbcTemplateFactory;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jettison.json.JSONException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import utils.Queries;
@@ -22,7 +21,7 @@ import java.sql.SQLException;
 
 /**
  * $Id
- * <p>Title: </p>
+ * <p>Title: Сотрудник</p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
  * <p>Date: 17.08.13</p>
@@ -31,7 +30,6 @@ import java.sql.SQLException;
  */
 public class Employee {
     private Integer id;
-    @JsonProperty(value = "label")
     private String firstName;
     private String lastName;
     private String middleName;
@@ -89,6 +87,14 @@ public class Employee {
         this.depId = depId;
     }
 
+    /**
+     * Создание сотрудника
+     * @param employee
+     * @return
+     * @throws SQLException
+     * @throws JSONException
+     * @throws ConfigurationException
+     */
     public static boolean create(Employee employee) throws SQLException, JSONException, ConfigurationException {
         JdbcTemplate template = JdbcTemplateFactory.getDBTemplate();
 
@@ -103,6 +109,14 @@ public class Employee {
         return result != 0;
     }
 
+    /**
+     * Удаление
+     * @param id
+     * @return
+     * @throws SQLException
+     * @throws JSONException
+     * @throws ConfigurationException
+     */
     public static boolean delete(int id) throws SQLException, JSONException, ConfigurationException {
         JdbcTemplate template = JdbcTemplateFactory.getDBTemplate();
 

@@ -10,11 +10,6 @@
 */
 package script.core;
 
-import org.codehaus.jettison.json.JSONException;
-
-import javax.naming.ConfigurationException;
-import java.sql.SQLException;
-
 /**
  * $Id
  * <p>Title: </p>
@@ -25,5 +20,10 @@ import java.sql.SQLException;
  * @version 1.0
  */
 public interface ITransactionScript {
-    public String run() throws JSONException, SQLException, ConfigurationException;
+    /**
+     * Метод запуска скрипта. Конфигурируется через конструкторы.
+     * @return
+     * @throws Exception
+     */
+    public String run() throws Exception;
 }

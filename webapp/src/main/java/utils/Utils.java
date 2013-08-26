@@ -14,7 +14,7 @@ import constants.IConstants;
 
 /**
  * $Id
- * <p>Title: </p>
+ * <p>Title: Утилитарный класс, содержащий полезные методы</p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
  * <p>Date: 25.08.13</p>
@@ -22,6 +22,12 @@ import constants.IConstants;
  * @version 1.0
  */
 public class Utils {
+    /**
+     * Проверка типа операции
+     *
+     * @param operation - строковое значение вида операции
+     * @return 1 - операция создания, 2 - операция удаления
+     */
     public static int checkOperationType(String operation) {
         if (IConstants.Operation.CREATE.equalsIgnoreCase(operation)) {
             return 1;
@@ -32,4 +38,13 @@ public class Utils {
         return 0;
     }
 
+    /**
+     * Метод проверки строки на пустоту
+     *
+     * @param value - строковое значение
+     * @return - возвращает строку с ошибкой или null, если все в порядке
+     */
+    public static boolean isNull(String value) {
+        return (value == null) || (value.trim().length() == 0);
+    }
 }

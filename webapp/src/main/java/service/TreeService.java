@@ -13,22 +13,18 @@ package service;
 import bean.Department;
 import bean.Employee;
 import org.apache.log4j.Logger;
-import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import script.core.ITransactionScript;
 import script.impl.DepartmentTrScript;
 import script.impl.PathRelationTrScript;
 import utils.Utils;
-import validation.Checker;
 
-import javax.naming.ConfigurationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.sql.SQLException;
 
 /**
  * $Id
- * <p>Title: </p>
+ * <p>Title: Сервис с методами, обслуживающими структуру дерева.</p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
  * <p>Date: 17.08.13</p>
@@ -48,16 +44,13 @@ public class TreeService {
         try {
             ITransactionScript trScript = new DepartmentTrScript(nodeId);
             jsonResultValue = trScript.run();
-        } catch (SQLException e) {
-            log.error(e);
-        } catch (JSONException e) {
-            log.error(e);
-        } catch (ConfigurationException e) {
+        } catch (Exception e) {
             log.error(e);
         }
 
         return jsonResultValue;
     }
+
 
     @GET
     @Path("/term")
@@ -66,19 +59,16 @@ public class TreeService {
         String jsonResultValue = "[{\"label\":\"No data\"}]";
 
         try {
-            if (!Checker.isNull(term)) {
+            if (!Utils.isNull(term)) {
                 ITransactionScript trScript = new DepartmentTrScript(term);
                 jsonResultValue = trScript.run();
             }
-        } catch (SQLException e) {
-            log.error(e);
-        } catch (JSONException e) {
-            log.error(e);
-        } catch (ConfigurationException e) {
+        } catch (Exception e) {
             log.error(e);
         }
         return jsonResultValue;
     }
+
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -97,18 +87,15 @@ public class TreeService {
                         break;
                 }
             }
-        } catch (JSONException e) {
-            log.error(e);
-        } catch (SQLException e) {
-            log.error(e);
-        } catch (ConfigurationException e) {
+        } catch (Exception e) {
             log.error(e);
         }
 
         return result ? "success" : "fail";
     }
 
-    private boolean performCreateOperation(JSONObject data) throws JSONException, SQLException, ConfigurationException {
+    //Создание ноды
+    private boolean performCreateOperation(JSONObject data) throws Exception {
         String type = data.getString("type");
 
         if ("employee".equalsIgnoreCase(type)) {
@@ -121,9 +108,11 @@ public class TreeService {
 
             return Employee.create(employee);
         } else if ("department".equalsIgnoreCase(type)) {
+            int parent_id = data.getInt("parent_id");
+
             Department department = new Department(
                     data.getString("name"),
-                    data.getInt("parent_id")
+                    parent_id == 0 ? null : parent_id
             );
 
             return Department.create(department);
@@ -132,7 +121,8 @@ public class TreeService {
         return false;
     }
 
-    private boolean performDeleteOperation(JSONObject data) throws JSONException, SQLException, ConfigurationException {
+    //Удаление ноды
+    private boolean performDeleteOperation(JSONObject data) throws Exception {
         String type = data.getString("type");
         int id = data.getInt("id");
 
@@ -145,21 +135,18 @@ public class TreeService {
         return false;
     }
 
+
     @GET
     @Path("/search")
     @Produces(MediaType.TEXT_PLAIN)
     public String getSearchResults(@QueryParam(value = "s") String searchTerm) {
         String jsonResultValue = "[{\"label\":\"No data\"}]";
         try {
-            if (!Checker.isNull(searchTerm)) {
+            if (!Utils.isNull(searchTerm)) {
                 ITransactionScript trScript = new PathRelationTrScript(searchTerm);
                 jsonResultValue = trScript.run();
             }
-        } catch (SQLException e) {
-            log.error(e);
-        } catch (JSONException e) {
-            log.error(e);
-        } catch (ConfigurationException e) {
+        } catch (Exception e) {
             log.error(e);
         }
         return jsonResultValue;

@@ -21,7 +21,7 @@ import java.sql.SQLException;
 
 /**
  * $Id
- * <p>Title: </p>
+ * <p>Title: Класс-бин департамента</p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
  * <p>Date: 17.08.13</p>
@@ -30,7 +30,6 @@ import java.sql.SQLException;
  */
 public class Department {
     private Integer id;
-    //    @JsonProperty(value = "label")
     private String name;
     private Integer parentId;
 
@@ -63,7 +62,15 @@ public class Department {
         this.parentId = parentId;
     }
 
-    public static boolean create(Department dep) throws SQLException, JSONException, ConfigurationException {
+    /**
+     * Метод создания нового департамента
+     * @param dep - департамент
+     * @return - булево значение успешности проведения транзакции
+     * @throws SQLException
+     * @throws JSONException
+     * @throws ConfigurationException
+     */
+    public static boolean create(Department dep) throws Exception {
         JdbcTemplate template = JdbcTemplateFactory.getDBTemplate();
 
         int result = template.update(
@@ -75,7 +82,13 @@ public class Department {
         return result != 0;
     }
 
-    public static boolean delete(int id) throws SQLException, JSONException, ConfigurationException {
+    /**
+     * Удаление департамента с выбранным id
+     * @param id - id департамента
+     * @return
+     * @throws Exception
+     */
+    public static boolean delete(int id) throws Exception {
         JdbcTemplate template = JdbcTemplateFactory.getDBTemplate();
 
         int result = template.update(

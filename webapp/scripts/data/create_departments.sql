@@ -26,7 +26,6 @@ INSERT INTO department (name, parent_id) VALUES ('Юридический отд�
                                                                          id
                                                                        FROM department
                                                                        WHERE name = 'Дочерняя компания'));
-
 INSERT INTO department (name, parent_id) VALUES ('АХО', (SELECT
                                                            id
                                                          FROM department

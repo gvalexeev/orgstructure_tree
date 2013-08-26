@@ -17,7 +17,7 @@ import java.util.Properties;
 
 /**
  * $Id
- * <p>Title: </p>
+ * <p>Title: утилитарный класс, содержащий методы для получения значений из файла конфига.</p>
  * <p>Description: </p>
  * <p>Author: g.alexeev (g.alexeev@i-teco.ru)</p>
  * <p>Date: 25.08.13</p>
@@ -46,6 +46,12 @@ public class Config {
         return props;
     }
 
+    /**
+     * Получение значения из файла конфига по имени
+     * @param config
+     * @return
+     * @throws ConfigurationException
+     */
     public static String getConfig(String config) throws ConfigurationException {
         return getConfig().getProperty(config);
     }
